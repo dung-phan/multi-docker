@@ -32,7 +32,7 @@ jobs:
       - name: Build Docker image
         run: |
             docker build -t dungfuturewhiz/multi-client ./client
-            docker build -t dungfuturewhiz/multi-server ./server
+            docker build -t dungfuturewhiz/multi-server ./express-server
             docker build -t dungfuturewhiz/multi-worker ./worker
             docker build -t dungfuturewhiz/multi-nginx ./nginx
 
