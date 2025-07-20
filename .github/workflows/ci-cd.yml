@@ -1,0 +1,50 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t dungfuturewhiz/client-test -f ./client/Dockerfile.dev ./client
+
+      - name: Run lint
+        run: docker run dungfuturewhiz/client-test npm run lint
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+            docker build -t dungfuturewhiz/multi-client ./client
+            docker build -t dungfuturewhiz/multi-server ./server
+            docker build -t dungfuturewhiz/multi-worker ./worker
+            docker build -t dungfuturewhiz/multi-nginx ./nginx
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_ID }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker images
+        run: |
+            docker push dungfuturewhiz/multi-client
+            docker push dungfuturewhiz/multi-server
+            docker push dungfuturewhiz/multi-worker
+            docker push dungfuturewhiz/multi-nginx
