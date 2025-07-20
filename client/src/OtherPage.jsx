@@ -1,6 +1,6 @@
 import {Link} from 'react-router-dom';
 
-export default () => {
+export default function OtherPage(){
 	return (
 		<div>
 			<h1>Other Page</h1>
